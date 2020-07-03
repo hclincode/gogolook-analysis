@@ -13,7 +13,7 @@ mysql_config = {
     'password': os.environ['MYSQL_PASSWORD'],
 }
 
-add_record = '''INSERT INTO report_event
+add_record_ignore_error = '''INSERT IGNORE INTO report_event
 (user_id, ts)
 VALUES (%s, %s)
 '''
@@ -42,23 +42,33 @@ if __name__ == '__main__':
         rows = csv.reader(data)
 
         line_count = 0
+        batch_buffer = []
         for row in rows:
             user_id, ts = row
             if not is_valid_row(user_id, ts):
                 error_count += 1
                 continue
-
-            # too many redundant record (id, ts) (primary key in schema)
-            # use execute instead of executemany
-            try:
-                cursor.execute(add_record, (user_id, ts))
-            except Exception as e:
-                print '[DB][%s]' % e, user_id, ts
-                continue
-
+            batch_buffer.append((user_id, ts))
             line_count += 1
             if line_count % 1000 == 999:
+                # too many redundant record (id, ts) (primary key in schema)
+                # use execute is too slow
+                # use ignore duplicate with executemany
+                try:
+                    cursor.executemany(add_record_ignore_error, batch_buffer)
+                except Exception as e:
+                    print '[DB][%s]' % e, batch_buffer
+                batch_buffer = []
                 cnx.commit()
+
+            if line_count % 100000 == 0:
+                print '[LINE] %d' % line_count
+
+    if batch_buffer:
+        try:
+            cursor.executemany(add_record_ignore_error, batch_buffer)
+        except Exception as e:
+            print '[DB][%s]' % e, batch_buffer
 
     cnx.commit()
     cnx.close()

@@ -8,6 +8,7 @@ pip install mysql-connector-python
 
 # task steps
 1. python insert_data.py data/8c0cb758-5cbd-4ffc-a267-ef6c5c94cefc.csv &>  log/insert.log
+It's so heavy for 2014 macbook air to insert 20M record to local mysql. I splited data and made 10 processes to insert them. expect for 9 hours.
 2. python create_view.py
 3. python query.py
 
