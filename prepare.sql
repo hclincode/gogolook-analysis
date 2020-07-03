@@ -16,9 +16,17 @@ INSERT into report_event (user_id, ts) VALUES ("37094","2020-01-06 12:42:30.000"
 INSERT into report_event (user_id, ts) VALUES ("37094","2020-01-07 12:42:30.000");
 INSERT into report_event (user_id, ts) VALUES ("37094","2020-01-08 12:42:30.000");
 INSERT into report_event (user_id, ts) VALUES ("37094","2020-01-09 12:42:30.000");
+
+INSERT ignore into report_event (user_id, ts) VALUES ("2414","2020-01-10 07:16:56.000"),("39397","2020-01-10 00:38:55.000");
+INSERT into report_event (user_id, ts) VALUES ();
+INSERT into report_event (user_id, ts) VALUES ();
 select *, DATE(ts) from report_event limit 100;
 select count(*) from report_event;
 truncate table report_event;
+select * from report_event where user_id = 99999999;
+
+-- total unique user
+SELECT COUNT(DISTINCT user_id) FROM report_event;
 
 -- query number of user on date
 SELECT COUNT(DISTINCT user_id) as num_of_user, date(ts) as report_date
@@ -49,3 +57,8 @@ CREATE VIEW continuous_report AS
         GROUP BY user_id, date_add(report_date, interval -num day));
 describe continuous_report;
 select count(user_id) from continuous_report;
+
+-- query by given -ge continuous day
+SELECT count(distinct user_id)
+FROM continuous_report
+WHERE date_add(start_date, INTERVAL 1 day) <= end_date
