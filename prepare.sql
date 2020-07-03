@@ -20,6 +20,11 @@ select *, DATE(ts) from report_event limit 100;
 select count(*) from report_event;
 truncate table report_event;
 
+-- query number of user on date
+SELECT COUNT(DISTINCT user_id) as num_of_user, date(ts) as report_date
+	FROM report_event
+    GROUP BY date(ts);
+
 -- continuous date
 select r1.user_id, r1.ts from
 	report_event r1,
