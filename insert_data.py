@@ -13,7 +13,7 @@ mysql_config = {
     'password': os.environ['MYSQL_PASSWORD'],
 }
 
-add_record_ignore_error = '''INSERT IGNORE INTO report_event
+SQL_INSERT_IGNORE = '''INSERT IGNORE INTO report_event
 (user_id, ts)
 VALUES (%s, %s)
 '''
@@ -55,7 +55,7 @@ if __name__ == '__main__':
                 # use execute is too slow
                 # use ignore duplicate with executemany
                 try:
-                    cursor.executemany(add_record_ignore_error, batch_buffer)
+                    cursor.executemany(SQL_INSERT_IGNORE, batch_buffer)
                 except Exception as e:
                     print '[DB][%s]' % e, batch_buffer
                 batch_buffer = []
@@ -66,7 +66,7 @@ if __name__ == '__main__':
 
     if batch_buffer:
         try:
-            cursor.executemany(add_record_ignore_error, batch_buffer)
+            cursor.executemany(SQL_INSERT_IGNORE, batch_buffer)
         except Exception as e:
             print '[DB][%s]' % e, batch_buffer
 
